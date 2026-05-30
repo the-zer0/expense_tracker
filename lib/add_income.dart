@@ -1,34 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class AddExpenseScreen extends StatefulWidget {
-  final String loggedInUser;
-
-  const AddExpenseScreen({super.key, required this.loggedInUser});
+class AddIncomeScreen extends StatefulWidget {
+  const AddIncomeScreen({super.key});
 
   @override
-  State<AddExpenseScreen> createState() => _AddExpenseScreenState();
+  State<AddIncomeScreen> createState() => _AddIncomeScreenState();
 }
 
-class _AddExpenseScreenState extends State<AddExpenseScreen> {
+class _AddIncomeScreenState extends State<AddIncomeScreen> {
   final titleController = TextEditingController();
   final amountController = TextEditingController();
-
-  String selectedCategory = 'Food';
-
-  final List<String> categories = [
-    'Food',
-    'Travel',
-    'Stay',
-    'Shopping',
-    'Other'
-  ];
-
+  String selectedMember = 'Rayudu';
   bool isSaving = false;
 
-  Future<void> saveExpense() async {
-    if (titleController.text.isEmpty ||
-        amountController.text.isEmpty) {
+  final List<String> members = ['Rayudu', 'Murali', 'Bhaskar'];
+
+  Future<void> saveIncome() async {
+    if (titleController.text.isEmpty || amountController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all fields')),
       );
@@ -40,9 +29,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     await FirebaseFirestore.instance.collection('expenses').add({
       'title': titleController.text.trim(),
       'amount': double.parse(amountController.text.trim()),
-      'category': selectedCategory,
-      'paidBy': widget.loggedInUser,
-      'addedBy': widget.loggedInUser,
+      'type': 'income',
+      'member': selectedMember,
       'timestamp': FieldValue.serverTimestamp(),
     });
 
@@ -54,12 +42,12 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Expense'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        title: const Text('Add Income'),
+        backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             TextField(
@@ -80,45 +68,29 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: selectedCategory,
+              value: selectedMember,
               decoration: const InputDecoration(
-                labelText: 'Category',
+                labelText: 'Given To',
                 border: OutlineInputBorder(),
               ),
-              items: categories.map((cat) {
-                return DropdownMenuItem(value: cat, child: Text(cat));
+              items: members.map((name) {
+                return DropdownMenuItem(value: name, child: Text(name));
               }).toList(),
-              onChanged: (val) => setState(() => selectedCategory = val!),
+              onChanged: (val) => setState(() => selectedMember = val!),
             ),
-
-            const SizedBox(height: 16),
-
-            TextField(
-              readOnly: true,
-              decoration: InputDecoration(
-                labelText: 'Paid By',
-                border: const OutlineInputBorder(),
-                hintText: widget.loggedInUser,
-              ),
-            ),
-
             const SizedBox(height: 24),
-
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: isSaving ? null : saveExpense,
+                onPressed: isSaving ? null : saveIncome,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: isSaving
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        'Save Expense',
-                        style: TextStyle(fontSize: 16),
-                      ),
+                    : const Text('Save Income', style: TextStyle(fontSize: 16)),
               ),
             ),
           ],
